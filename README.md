@@ -388,6 +388,7 @@ ls コマンドで表示された項目は以下の通り。
   ```
 
 - less
+
   - 1 画面では収まりきらない大きなファイルを表示する場合使用する
   - テキストファイルの内容を１ページずつ表示
     ```bash
@@ -399,3 +400,489 @@ ls コマンドで表示された項目は以下の通り。
     - スペース :1 画面下方向に進める
     - ctrl + b :1 画面 ↑ 方向に進める
     - q :less 終了
+
+- env
+
+  - 環境変数参照
+    ```bash
+      / # env
+      HOSTNAME=d02147933e8e
+      SHLVL=1
+      HOME=/root
+      TERM=xterm
+      PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      PWD=/
+    ```
+
+- os inf
+  ```bash
+    / # cat /etc/issue
+    Welcome to Alpine Linux 3.14
+    Kernel \r on an \m (\l)
+  ```
+
+5. ファイルのコピー、移動、削除
+
+- [Copy](https://atmarkit.itmedia.co.jp/ait/articles/1605/31/news019.html)
+
+  - 書式
+
+  ```bash
+    # file to file
+    $ > cp コピー元ファイル名 コピー先ファイル名
+    # file to dir
+    $ > cp コピー元ファイル名 コピー先ディレクトリ
+  ```
+
+- [move](https://atmarkit.itmedia.co.jp/ait/articles/1606/13/news024.html)
+
+  - 書式
+
+  ```bash
+    # file to file
+    $ > mv コピー元ファイル名 コピー先ファイル名
+    # file to dir
+    $ > mv コピー元ファイル名 コピー先ディレクトリ
+  ```
+
+- [remove](https://atmarkit.itmedia.co.jp/ait/articles/1606/06/news013.html)
+
+  - 書式
+
+  ```bash
+    $ > rm ファイル名
+    $ > rm -r  ディレクトリ名
+  ```
+
+6. 圧縮と解凍
+
+- gzip&gunzip
+
+  - linux における圧縮としてよく使われる
+  - gzip 形式の拡張子「.gz」
+  - 圧縮
+
+    - 書式
+
+      ```bash
+        $ > gzip ファイル名
+      ```
+
+    - example
+
+      ```bash
+        /tmp # ls test
+        test.txt
+        /tmp/test # gzip test.txt
+        /tmp/test # ls -a
+        . .. test.txt.gz
+      ```
+
+  - 解凍
+
+    - 書式
+
+      ```bash
+        $ > gunzip 圧縮ファイル名
+      ```
+
+    - example
+
+      ```bash
+      /tmp/test # ls
+      test.txt.gz
+      /tmp/test # gunzip test.txt.gz
+      /tmp/test # ls
+      test.txt
+      ```
+
+- bzip2&xz
+
+  - bzip2
+
+    - 書式
+
+      - 圧縮
+
+        ```bash
+          $ > bzip ファイル名
+        ```
+
+      - 解凍
+
+        ```bash
+          $ > bunzip 圧縮ファイル名
+        ```
+
+  - xz
+
+    - install
+
+      ```bash
+        $ > apk add xz
+      ```
+
+    - 書式
+
+      - 圧縮
+
+        ```bash
+          $ > xz ファイル名
+        ```
+
+      - 解凍
+
+        ```bash
+          $ > unxz 圧縮ファイル名
+        ```
+
+- zip&unzip
+  - install
+    ```bash
+    / # apk add zip
+    (1/2) Installing unzip (6.0-r9)
+    (2/2) Installing zip (3.0-r9)
+    Executing busybox-1.33.1-r3.trigger
+    OK: 9 MiB in 20 packages
+    ```
+  - zip
+    - gzip コマンドとは異なり元のファイルは削除されない
+    - ディレクトリを圧縮するときは「-r」オプションを設定
+    - 書式
+      ```bash
+        $> zip [-r] "圧縮ファイル名" "ファイル名 または ディレクトリ名"
+      ```
+    - example
+      ```bash
+        /tmp # ls
+        test      test.txt
+        /tmp # zip -r test.zip test
+          adding: test/ (stored 0%)
+          adding: test/test.txt (stored 0%)
+      ```
+  - unzip
+    - gunzip とはことなり圧縮ファイルは削除されない
+    - 書式
+      ```bash
+        $> unzip "圧縮ファイル名"
+      ```
+    - example
+      ```bash
+        /tmp # unzip test.zip
+        Archive:  test.zip
+          creating: test/
+        extracting: test/test.txt
+        /tmp # ls
+        test      test.txt  test.zip
+      ```
+- tar
+  - gzip/bzip2/xz コマンドはディレクトリの圧縮対応していません tar コマンドを使用して１ファイルにまとめる
+  - cvf
+    - アーカイブ
+    - 書式
+      ```bash
+        $> tar cvf "アーカイブファイル名" "ディレクトリ名"
+      ```
+      - c オプション：アーカイブの作成
+      - v オプション：処理内容の情報出力
+      - f オプション：アーカイブファイル名指定
+    - example
+      ```bash
+        /tmp # ls
+        test      test.txt  test.zip
+        /tmp # tar cvf test.tar test
+        test/
+        test/yamazaki.md
+        test/test.txt
+        /tmp #
+      ```
+  - xvf
+    - アーカイブファイル展開
+    - 書式
+      ```bash
+        $> tar xvf "アーカイブファイル名"
+      ```
+    - example
+      ```bash
+        /tmp # tar xvf test.tar
+        test/
+        test/yamazaki.md
+        test/test.txt
+        /tmp # ls
+        test      test.tar  test.txt  test.zip
+        /tmp # ls test
+        test.txt     yamazaki.md
+      ```
+  - オプション
+    | オプション | 説明 |
+    | --- | ---|
+    |c| アーカイブ作成|
+    |x|アーカイブ展開|
+    |v|詳細表示|
+    |f|アーカイブファイル指定する|
+    |z|gzip 圧縮利用|
+    |j|bzip2 圧縮利用|
+    |J|xzs 圧縮利用|
+    |t|アーカイブの内容を表示|
+
+7. ハードリックとシンボリックリンク
+   ハードリンクやシンボリックリンクを使うと、１津のファイルに複数のファイルをつけることができる
+
+- i ノード
+  - ファイルサイズ・最終更新日・アクセス権情報・デスク上格納場所など記録している
+  - メタデータを管理している
+    - ファイルは、データ・メタデータで構成されている
+  - すべてのファイル・ディレクトリにはメタデータを管理する i ノードが存在する
+  - i ノードには連番がつけられている
+    - ls コマンド-i オプションをつけると連番がわかる
+  - i ノードとファイルの対応づけをリンクという
+- ハードリンク
+
+  - 1 つの i ノードに複数のファイル名をリンクさせること
+  - ハードリンクを使うと１つのファイルに複数のファイル名でアクセスできる
+  - ディレクトリのハードリンクを作成できない
+  - コマンド
+
+    - 所有者の直前にある「２」はハードリンクを表す
+
+    ```bash
+      $ ln 元のファイル 作成するリンクファイル
+
+      / # ln tmp/test/test.txt tmp/link1.hard
+      / # ls tmp/ -li
+      total 12
+      342788 -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+      248784 drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+      342789 -rw-r--r--    1 root     root          2560 Aug 20 14:07 test.tar
+      248916 -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+      248913 -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+    ```
+
+- シンボリックリンク
+
+  - ファイルに別名を付けす仕組み
+  - windows ショートカット/mac エイリアスと同じ
+  - コマンド
+
+    ```bash
+      $ ln -s 元ファイル 作成するリンク
+
+        / # ln -s  tmp/test/test.txt tmp/link2.sym
+        / # ls tmp/ -li
+        total 12
+        342788 -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+        248917 lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+        248784 drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+        342789 -rw-r--r--    1 root     root          2560 Aug 20 14:07 test.tar
+        248916 -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+        248913 -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+        / #
+    ```
+
+  - シンボリックはファイルへのポインタ（ファイル参照先）を格納している
+    - 元ファイルが削除された場合、シンボリックファイルへのアクセスはエラーとなる
+    - ハードリンクは、すべてのハードリンクを削除されない限りアクセスできる
+
+- パーミッション
+
+  - 所有者と所有グループ
+
+    - 所有者・・・ファイルやディレクトリを作成したユーザー
+    - 所有グループ・・・所有者のプライマリーグループ
+    - 所有者と所有グループの確認コマンド
+      ```bash
+        / # ls -l tmp/
+        total 12
+        -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+        lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+        drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+        -rw-r--r--    1 root     root          2560 Aug 20 14:07 test.tar
+        -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+        -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+        / #
+      ```
+
+  - 所有者変更
+
+    - 変更できるのは「root」ユーザーのみ
+    - chown : CHange OWNer
+    - コマンド
+
+      - 指定したディレクトリ以下すべて所有者変更する場合「-R」オプション
+
+      ```bash
+        chown [-R] 所有者名 ファイル名またはディレクトリ
+
+        / # ls -l tmp/
+        total 12
+        -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+        lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+        drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+        -rw-r--r--    1 root     root          2560 Aug 20 14:07 test.tar
+        -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+        -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+        / # chown  alpine tmp/test.tar
+        / # ls -l tmp/
+        total 12
+        -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+        lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+        drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+        -rw-r--r--    1 alpine   root          2560 Aug 20 14:07 test.tar
+        -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+        -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+      ```
+
+  - 所有グループ変更
+
+    - 一般ユーザーが変更する場合、一般ユーザーが所臆しているグループのみ
+    - root ユーザーは制限なし
+    - chgrp・・・CHange GRouP
+    - コマンド
+
+      - 指定したディレクトリ以下すべて所有グループ変更する場合「-R」オプション
+
+      ```bash
+        $ chgrp [-R] グループ名 ファイル名またはディレクトリ名
+
+        / # ls -l tmp/
+        total 12
+        -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+        lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+        drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+        -rw-r--r--    1 alpine   root          2560 Aug 20 14:07 test.tar
+        -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+        -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+        / # chgrp alpine tmp/test.tar
+        / # ls -l tmp/
+        total 12
+        -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+        lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+        drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+        -rw-r--r--    1 alpine   alpine        2560 Aug 20 14:07 test.tar
+        -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+        -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+      ```
+
+  - 所有者とグループ同時変更
+
+    ```bash
+    $ chown [user]:[group] [targetfile]
+
+      / # ls -l tmp/
+      total 12
+      -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+      lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+      drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+      -rw-r--r--    1 alpine   alpine        2560 Aug 20 14:07 test.tar
+      -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+      -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+      / # chown root:root tmp/test.tar
+      / # ls -l tmp/
+      total 12
+      -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+      lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+      drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+      -rw-r--r--    1 root     root          2560 Aug 20 14:07 test.tar
+      -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+      -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+    ```
+
+## docker alpine apache
+
+_install_
+
+- openrc
+
+```bash
+/ # apk add openrc --no-cache
+fetch https://dl-cdn.alpinelinux.org/alpine/v3.14/main/x86_64/APKINDEX.tar.gz
+fetch https://dl-cdn.alpinelinux.org/alpine/v3.14/community/x86_64/APKINDEX.tar.gz
+(1/2) Installing ifupdown-ng (0.11.3-r0)
+(2/2) Installing openrc (0.43.3-r1)
+Executing openrc-0.43.3-r1.post-install
+Executing busybox-1.33.1-r3.trigger
+OK: 12 MiB in 22 packages
+
+/ # apk info openrc
+openrc-0.43.3-r1 description:
+OpenRC manages the services, startup and shutdown of a host
+
+openrc-0.43.3-r1 webpage:
+https://github.com/OpenRC/openrc
+
+openrc-0.43.3-r1 installed size:
+2452 KiB
+
+```
+
+- apache2
+
+```bash
+/ # apk -U add apache2
+/ # apk info apache2
+apache2-2.4.48-r0 description:
+A high performance Unix-based HTTP server
+f
+apache2-2.4.48-r0 webpage:
+https://httpd.apache.org/
+
+apache2-2.4.48-r0 installed size:
+2920 KiB
+
+```
+
+_start_
+
+```bash
+/ # rc-service apache2 start
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/blkio/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/cpu/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/cpuacct/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/cpuset/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/devices/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/freezer/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/hugetlb/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/memory/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/net_cls/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/net_prio/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/perf_event/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/pids/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/rdma/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/systemd/tasks: Read-only file system
+ * Starting apache2 ...
+AH00558: httpd: Could not reliably determine the server's fully qualified domain name, using 172.17.0.2. Set the 'ServerName' directive globally to suppress this message
+```
+
+※エラーがでた
+
+```bash
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/blkio/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/cpu/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/cpuacct/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/cpuset/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/devices/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/freezer/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/hugetlb/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/memory/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/net_cls/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/net_prio/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/perf_event/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/pids/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/rdma/tasks: Read-only file system
+/lib/rc/sh/openrc-run.sh: line 108: can't create /sys/fs/cgroup/systemd/tasks: Read-only file system
+ * You are attempting to run an openrc service on a
+ * system which openrc did not boot.
+ * You may be inside a chroot or you may have used
+ * another initialization system to boot this system.
+ * In this situation, you will get unpredictable results!
+ * If you really want to do this, issue the following command:
+ * touch /run/openrc/softlevel
+ * ERROR: apache2 failed to start
+```
+
+↓ 対処方法
+
+```bash
+touch /run/openrc/softlevel
+
+```
