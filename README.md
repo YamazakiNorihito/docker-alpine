@@ -687,6 +687,7 @@ ls コマンドで表示された項目は以下の通り。
 
   - 所有者と所有グループ
 
+    - ファイルやディレクトリへのアクセスコントロールするために使う
     - 所有者・・・ファイルやディレクトリを作成したユーザー
     - 所有グループ・・・所有者のプライマリーグループ
     - 所有者と所有グループの確認コマンド
@@ -786,6 +787,182 @@ ls コマンドで表示された項目は以下の通り。
       -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
       -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
     ```
+
+  - アクセス権
+
+    - 「読出し」「書込み」「実行」の３種類ある
+    - アクセス権は、以下のそれぞれに対して設定
+
+      - 所有者ユーザー
+      - 所有グループに属するユーザー
+      - その他のユーザー
+      - 設定例
+        - 所有者はファイルの「読出し」「書込み」可能
+        - 所有グループはファイルの「読出し」
+        - その他はファイルに対して何もできない
+      - アクセス権の記号
+
+        | 権限       | 記号        | 数字 | 権限説明（ファイルの場合）         | 権限説明（ディレクトリの場合）                              |
+        | ---------- | ----------- | ---- | ---------------------------------- | ----------------------------------------------------------- |
+        | 読み取り権 | r（read）   | 4    | cat コマンドなどで読出し可能となる | ディレクトリ内のファイル名一覧を表示することができる        |
+        | 書き込み権 | w（write）  | 2    | ファイルの内容の変更が可能となる   | ファイル作成や削除することが可能                            |
+        | 実行権     | x（eXecute) | 1    | プログラムとして実行が可能となる   | cd コマンドで移動やディレクトリ名のファイルにアクセスできる |
+        | 権限無し   | -           | 0    |                                    |                                                             |
+
+      - パーミッション確認コマンド
+
+        ```bash
+          $ ls -l ファイル名またはディレクトリ
+
+          / # ls -l tmp/
+          total 12
+          -rw-r--r--    2 root     root             0 Aug 20 13:47 link1.hard
+          lrwxrwxrwx    1 root     root            17 Aug 29 13:02 link2.sym -> tmp/test/test.txt
+          drwxr-xr-x    2 root     root          4096 Aug 20 14:10 test
+          -rw-r--r--    1 root     root          2560 Aug 20 14:07 test.tar
+          -rw-r--r--    1 root     root             0 Aug 18 14:56 test.txt
+          -rw-r--r--    1 root     root           314 Aug 20 13:56 test.zip
+        ```
+
+        「-rw-r--r--」・・・先頭の一文字はファイルモードの左端の１文字目はファイルの種類
+        ↓ 実質
+        「rw-r--r--」・・・左から３文字ずつ「所有者」「所有グループ」「その他」のアクセス権を表す
+        ↓ 数字表記
+        「644」・・・左から３文字ずつ数字変換して足し合わせたもの。
+
+      - パーミッション変更コマンド
+
+        - 実行できるのは、所有者と root ユーザーのみ
+        - chmod・・・Change MODe (change mode)
+        - アクセス権の設定はいずれか
+          - 3 桁の数字をしている（アクセス権の記号を参照）
+          - 記号
+            | 種別 | 記号 | 説明 |
+            | ---------- | ---- | ---------------- |
+            | 対象 | u | 所有者 |
+            | 対象 | g | 所有グループ |
+            | 対象 | o | その他ユーザ |
+            | 対象 | a | すべてのユーザー |
+            | 操作 | + | 権限の追加 |
+            | 操作 | - | 権限の削除 |
+            | 操作 | = | 権限の指定 |
+            | アクセス権 | r | 読み取り許可 |
+            | アクセス権 | w | 書き込み許可 |
+            | アクセス権 | x | 実行許可 |
+        - コマンド
+
+          ```bash
+            $ chmod [-R] アクセス権 ファイル名またはディレクトリ
+          ```
+
+          - 例
+
+            - 「rw-r--r--」の設定
+              ```bash
+                /tmp/access # ls -l
+                total 0
+                ----------    1 root     root             0 Aug 31 12:45 sample.txt
+                /tmp/access # chmod 644 sample.txt
+                /tmp/access # ls -l
+                total 0
+                -rw-r--r--    1 root     root             0 Aug 31 12:45 sample.txt
+              ```
+            - 「rwxr-xr-x」の設定
+              ```bash
+                /tmp/access # ls -l
+                total 0
+                -rw-r--r--    1 root     root             0 Aug 31 12:45 sample.txt
+                /tmp/access # chmod 755 sample.txt
+                /tmp/access # ls -l
+                total 0
+                -rwxr-xr-x    1 root     root             0 Aug 31 12:45 sample.txt
+              ```
+            - 「rwxr-xr-x」から「rwxrwxr-x」に変更
+
+              ```bash
+                /tmp/access # ls -l
+                total 0
+                -rwxr-xr-x    1 root     root             0 Aug 31 12:45 sample.txt
+                /tmp/access # chmod g+w sample.txt
+                /tmp/access # ls -l
+                total 0
+                -rwxrwxr-x    1 root     root             0 Aug 31 12:45 sample.txt
+              ```
+
+            - 所有者以外実行権限削除
+
+              ```bash
+                tmp/access # ls -l
+                total 0
+                -rwxrwxr-x    1 root     root             0 Aug 31 12:45 sample.txt
+                /tmp/access # chmod go-x sample.txt
+                /tmp/access # ls -l
+                total 0
+                -rwxrw-r--    1 root     root             0 Aug 31 12:45 sample.txt
+              ```
+
+  - シェル
+
+    - ユーザーが入力したコマンドをカーネルに実行させる翻訳者（インタープリンタ）役割を果たす
+    - システムで利用可能なシェルは/etc/shells ファイルで確認可能
+
+      ```bash
+        / # cat etc/shells
+        # valid login shells
+        /bin/sh
+        /bin/ash
+        /bin/bash
+      ```
+
+    - 種類
+      | シェル | 意味 |説明 |
+      | ------ | ---- |---- |
+      | sh| Bourne Shell|機能がシンプルな UNIX 標準シェル|
+      | ash| Almquist Shell |sh を拡張しつつ軽量なシェル。Alpine 補油順|
+      | bash| Bourne Again Shell |sh を拡張して多機能にしたシェル。多くのディストリビューション標準|
+      | csh| C shell|C |
+      | tcsh| |csh を確証したシェル|
+      | ksh| Korn shell|sh を拡張したシェル|
+      | zsh| |ksh に bash や tcsh の機能を取り込んだ多機能シェル。macos で標準|
+      | fish| friendly interactive shell |わかりやすさに重点をおいたシェル|
+
+  - メタキャラクタ
+
+    - シェルにとって特別な意味を持つ文字
+    - 一覧
+      |メタキャラクタ|説明|
+      |---|---|
+      |\*|0 文字以上の任意の文字列|
+      |?|任意の１文字|
+      |\[\]|\[\]内の任意の１文字|
+      |\\|メタキャラクタの打消し(エスケープ文字)|
+    - コマンド例
+
+      ```bash
+      /tmp/meta # for i in $(seq 10 $END); do  echo $i".txt" ; done
+      1.txt
+      2.txt
+      3.txt
+      4.txt
+      5.txt
+      6.txt
+      7.txt
+      8.txt
+      9.txt
+      10.txt
+      /tmp/meta # for i in $(seq 10 $END); do  touch $i".txt" ; done
+      /tmp/meta # ls
+      1.txt   10.txt  2.txt   3.txt   4.txt   5.txt   6.txt   7.txt   8.txt   9.txt
+      /tmp/meta # ls *.txt
+      1.txt   10.txt  2.txt   3.txt   4.txt   5.txt   6.txt   7.txt   8.txt   9.txt
+      /tmp/meta # ls ?.txt
+      1.txt  2.txt  3.txt  4.txt  5.txt  6.txt  7.txt  8.txt  9.txt
+      /tmp/meta # ls [1]*.txt
+      1.txt   10.txt
+      /tmp/meta # ls *[0]*.txt
+      10.txt
+      /tmp/meta #
+      ```
 
 ## docker alpine apache
 
